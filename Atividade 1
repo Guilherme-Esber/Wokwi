@@ -1,0 +1,23 @@
+///
+Faça um programa que ao pressionar o botão verde
+o LED deverá se acender, pressionando novamente o botão verde
+o LED deverá apagar. 
+///
+
+void setup() {
+  pinMode(25, INPUT);
+  pinMode(21, OUTPUT);
+}
+
+int anterior = 0;
+
+void loop() {
+  int nova = digitalRead(25);
+
+  if (anterior > nova){
+    int led = digitalRead(21);
+    digitalWrite(21, !led);
+  }
+  anterior = nova;
+  delay(10);
+}
