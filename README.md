@@ -1,2 +1,2 @@
 # Wokwi
-Porgramação ESP32
+Porgramação em C para ESP32
