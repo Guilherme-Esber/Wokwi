@@ -1,0 +1,31 @@
+///
+Faça um código que controle a luminosidade do LED
+variando de apagado para acesso em 5 segundos
+e de acesso para apagado em 5 segundos
+o nível do brilho do LED deve variar em 255 níveis 
+///
+
+void setup() {
+  pinMode(21, OUTPUT);
+  Serial.begin(115200);
+}
+
+void loop() {
+  static int valor = 0;
+  static int incremento = 1;
+
+  analogWrite(21, valor);
+
+  if (incremento == 1 && valor > 255){
+    incremento = -1;
+  }
+  if (incremento == -1 && valor < 1){
+    incremento = 1;
+  }
+
+  valor += incremento;
+
+  Serial.println(valor);
+
+  delay(10);
+}
