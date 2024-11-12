@@ -5,6 +5,8 @@ e de acesso para apagado em 5 segundos
 o nível do brilho do LED deve variar em 255 níveis 
 ///
 
+
+
 void setup() {
   pinMode(21, OUTPUT);
   Serial.begin(115200);
