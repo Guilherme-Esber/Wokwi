@@ -1,0 +1,53 @@
+///
+Usando uma entrada analógica faça o controle dos 4 LEDs através do valor do
+potenciômetro.
+Divida a escala digital do convertor analógico de 12 bit (4.096 valores) 
+em 4 faixas: azul (menor), verde, amarelo, vermelho (máximo). 
+///
+
+
+
+void setup() {
+  pinMode(35,INPUT);
+  pinMode(23,OUTPUT);
+  pinMode(22,OUTPUT);
+  pinMode(21,OUTPUT);
+  pinMode(19,OUTPUT);
+
+  Serial.begin(115200);
+}
+
+int ledazul = 23;
+int ledverde = 22;
+int ledamarelo = 21;
+int ledvermelho = 19;
+int conana = 35;
+
+void loop() {
+  int cavalor = analogRead(conana);
+
+  digitalWrite(ledazul, LOW);
+  digitalWrite(ledverde, LOW);
+  digitalWrite(ledamarelo, LOW);
+  digitalWrite(ledvermelho, LOW);
+
+  if (cavalor < 1024)
+  {
+    digitalWrite(ledazul, HIGH);
+  }
+  else if (cavalor < 2048)
+  {
+    digitalWrite(ledverde, HIGH);
+  }
+  else if (cavalor < 3072)
+  {
+    digitalWrite(ledamarelo, HIGH);
+  }
+  else 
+  {
+    digitalWrite(ledvermelho, HIGH);
+  }
+
+  Serial.println(cavalor);
+  delay(10); // this speeds up the simulation
+}
