@@ -1,0 +1,36 @@
+///
+Faça um programa que ao pressionar o botão vermelho o servo motor se posicione 
+a 45 graus e pressionando o botão verde se posicione a 90 graus. 
+///
+
+
+
+#include <ESP32Servo.h>
+
+Servo myservo;
+
+void setup() {
+  pinMode(34, INPUT);
+  pinMode(35, INPUT);
+  
+  ESP32PWM::allocateTimer(0);
+  ESP32PWM::allocateTimer(1);
+  ESP32PWM::allocateTimer(2);
+  ESP32PWM::allocateTimer(3);
+  myservo.setPeriodHertz(50);    
+  myservo.attach(18, 1000, 2000);
+  myservo.write(0);
+}
+
+void loop() {
+
+  if (!digitalRead(34))
+  {
+    myservo.write(45);
+  }
+  if (!digitalRead(35))
+  {
+    myservo.write(90);
+  }
+  delay(10); // this speeds up the simulation
+}
