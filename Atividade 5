@@ -1,0 +1,47 @@
+///
+Usando o medidor ultrasônico de distância, escreva o valor medido
+na porta UART (Serial) a cada 1 segundo. 
+///
+
+
+
+// Definindo os pinos para o módulo HC-SR04
+#define TRIG_PIN 23  // Pino GPIO para o TRIG
+#define ECHO_PIN 22  // Pino GPIO para o ECHO
+
+void setup() {
+  // Inicializando a comunicação serial com o computador
+  Serial.begin(115200);
+  Serial.println("Iniciando o medidor ultrasônico...");
+
+  // Inicializando os pinos do HC-SR04
+  pinMode(TRIG_PIN, OUTPUT);
+  pinMode(ECHO_PIN, INPUT);
+}
+
+void loop() {
+  // Medir a distância
+  long duration, distance;
+  
+  // Enviar um pulso de 10 microssegundos no TRIG para iniciar a medição
+  digitalWrite(TRIG_PIN, LOW);
+  delayMicroseconds(2); // Atraso para garantir estabilidade no sinal
+  digitalWrite(TRIG_PIN, HIGH);
+  delayMicroseconds(10); // Pulso de 10ms
+  digitalWrite(TRIG_PIN, LOW);
+  
+  // Medir o tempo de resposta do ECHO
+  duration = pulseIn(ECHO_PIN, HIGH);
+  
+  // Calcular a distância com a fórmula: distância = (tempo * velocidade do som) / 2
+  // Velocidade do som é cerca de 343m/s ou 0.0343 cm/µs
+  distance = duration * 0.0343 / 2;
+
+  // Enviar a distância medida pela porta serial
+  Serial.print("Distância: ");
+  Serial.print(distance);
+  Serial.println(" cm");
+
+  // Aguardar 1 segundo antes de realizar outra medição
+  delay(1000);
+}
