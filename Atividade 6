@@ -1,0 +1,71 @@
+///
+Utilizando o sensor DHT22 leia temperatura e umidade.
+No LCD escreva esses valores da seguinte forma:
+Temp: 24.3
+Umid: 92.1
+///
+
+
+
+#include <DHT.h>
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+
+// Definir o pino de dados do DHT22
+#define DHTPIN 14  // Pino GPIO 14 para o DHT22
+
+// Definir o tipo do sensor (DHT22)
+#define DHTTYPE DHT22
+
+// Inicializar o sensor DHT
+DHT dht(DHTPIN, DHTTYPE);
+
+// Inicializar o LCD com o endereço I2C 0x27, 16 colunas e 2 linhas
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+
+void setup() {
+  // Inicializar a comunicação serial
+  Serial.begin(115200);
+  Serial.println("Iniciando o sensor DHT22 e LCD...");
+
+  // Inicializar o sensor DHT
+  dht.begin();
+
+  // Inicializar o LCD com o número de colunas e linhas
+  lcd.begin(16, 2);  // 16 colunas, 2 linhas
+  lcd.setBacklight(1);  // Ligar o retroiluminado do LCD
+}
+
+void loop() {
+  // Espera entre as leituras do sensor DHT
+  delay(2000);  // O DHT22 tem um tempo de resposta de 2 segundos
+
+  // Leitura da temperatura e umidade
+  float temp = dht.readTemperature();  // Temperatura em Celsius
+  float humidity = dht.readHumidity();  // Umidade relativa em %
+
+  // Verificar se as leituras falharam
+  if (isnan(temp) || isnan(humidity)) {
+    Serial.println("Falha ao ler o sensor DHT!");
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Erro de leitura");
+    return;
+  }
+
+  // Exibir valores no Serial Monitor
+  Serial.print("Temp: ");
+  Serial.print(temp, 1);  // Mostra 1 casa decimal
+  Serial.print("\nUmid: ");
+  Serial.print(humidity, 1);  // Mostra 1 casa decimal
+  Serial.print("\n");
+
+  // Exibir no LCD
+  lcd.clear();  // Limpar LCD antes de atualizar
+  lcd.setCursor(0, 0);  // Colocar o cursor na primeira linha
+  lcd.print("Temp: ");
+  lcd.print(temp, 1);  // Exibir temperatura com 1 casa decimal
+  lcd.setCursor(0, 1);  // Colocar o cursor na segunda linha
+  lcd.print("Umid: ");
+  lcd.print(humidity, 1);  // Exibir umidade com 1 casa decimal
+}
