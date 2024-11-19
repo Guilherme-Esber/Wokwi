@@ -1,0 +1,89 @@
+///
+Usando a porta serial, informe os valores de:
+- Posição horizontal do joystick analógico
+- Posição vertical do joystick analógico
+- Botão seleção do joystick analógico
+- Posição do encoder rotativo usando CLK e DT
+- Botão SW do encoder rotativo
+Da seguinte forma:
+HOZ: 1735 45 VER: 2048 SEL: 0 ENC: 306 SW: 1
+///
+
+
+
+// Definir os pinos para o joystick e o encoder rotativo
+const int joystickHozPin = 34;   // Pino analógico para a posição horizontal
+const int joystickVerPin = 35;   // Pino analógico para a posição vertical
+const int joystickSelPin = 32;   // Pino digital para o botão de seleção do joystick
+
+const int encoderCLKPin = 16;    // Pino de clock do encoder
+const int encoderDTPin = 17;    // Pino de data do encoder
+const int encoderSWPin = 18;    // Pino do botão SW do encoder
+
+// Variáveis para armazenar os valores lidos
+int joystickHozValue = 0;
+int joystickVerValue = 0;
+int joystickSelState = 0;
+
+int encoderPos = 0;
+int encoderSWState = 0;
+
+// Variáveis para o controle do encoder
+int lastEncoderCLKState = LOW;
+int encoderCLKState = LOW;
+
+void setup() {
+  // Iniciar a comunicação serial
+  Serial.begin(115200);
+
+  // Definir pinos de entrada
+  pinMode(joystickSelPin, INPUT_PULLUP);
+  pinMode(encoderSWPin, INPUT_PULLUP);
+  pinMode(encoderCLKPin, INPUT);
+  pinMode(encoderDTPin, INPUT);
+
+  Serial.println("Iniciado...");
+}
+
+void loop() {
+  // Ler valores do joystick
+  joystickHozValue = analogRead(joystickHozPin);  // Leitura analógica da posição horizontal
+  joystickVerValue = analogRead(joystickVerPin);  // Leitura analógica da posição vertical
+  joystickSelState = digitalRead(joystickSelPin); // Leitura do botão de seleção (baixo se pressionado)
+
+  // Ler o estado do encoder rotativo
+  encoderCLKState = digitalRead(encoderCLKPin);
+
+  // Verificar a rotação do encoder
+  if (encoderCLKState != lastEncoderCLKState) {
+    if (digitalRead(encoderDTPin) != encoderCLKState) {
+      encoderPos++;  // Giro no sentido horário
+    } else {
+      encoderPos--;  // Giro no sentido anti-horário
+    }
+  }
+
+  // Atualizar o estado do botão SW do encoder
+  encoderSWState = digitalRead(encoderSWPin); // Botão SW do encoder
+
+  // Imprimir os valores na porta serial no formato desejado
+  Serial.print("HOZ: ");
+  Serial.print(joystickHozValue);
+  Serial.print(" ");
+  Serial.print(joystickSelState);
+  
+  Serial.print(" VER: ");
+  Serial.print(joystickVerValue);
+  Serial.print(" SEL: ");
+  Serial.print(joystickSelState);
+  
+  Serial.print(" ENC: ");
+  Serial.print(encoderPos);
+  Serial.print(" SW: ");
+  Serial.println(encoderSWState);
+
+  // Salvar o estado do encoder para a próxima leitura
+  lastEncoderCLKState = encoderCLKState;
+
+  delay(10); // Pequeno atraso para evitar leituras excessivas
+}
