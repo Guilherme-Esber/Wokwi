@@ -1,0 +1,88 @@
+///
+Usando o MCU6050, identifique:
+- Aceleração da gravidade em X
+- Aceleração da gravidade em Y
+- Aceleração da gravidade em Z
+Faça o LED vermelho piscar 3 vezes quando a variação em um
+dos 3 eixos de aceleração variar mais de 30% indicando uma
+possível queda do equipamento.
+///
+
+
+
+#include <Wire.h>
+#include <MPU6050.h>
+
+// Definir pinos
+const int ledPin = 13;  // Pino do LED vermelho (exemplo GPIO13)
+
+MPU6050 mpu;
+
+// Variáveis para armazenar aceleração
+int16_t ax, ay, az;  // Alterado de float para int16_t
+int16_t ax_previous, ay_previous, az_previous;
+bool ledState = false;
+
+void setup() {
+  // Inicializar comunicação serial
+  Serial.begin(115200);
+  
+  // Inicializar o pino do LED
+  pinMode(ledPin, OUTPUT);
+
+  // Inicializar comunicação I2C
+  Wire.begin();
+  
+  // Inicializar o MPU6050
+  mpu.initialize();
+  
+  // Verificar se o sensor está conectado corretamente
+  if (!mpu.testConnection()) {
+    Serial.println("Erro ao conectar com o MPU6050");
+    while (1);  // Se não houver conexão, fica em loop
+  }
+  
+  Serial.println("MPU6050 inicializado com sucesso!");
+  
+  // Inicializar os valores anteriores de aceleração
+  ax_previous = 0;
+  ay_previous = 0;
+  az_previous = 0;
+}
+
+void loop() {
+  // Ler valores de aceleração
+  mpu.getAcceleration(&ax, &ay, &az);
+
+  // Calcular a variação percentual em relação aos valores anteriores
+  float deltaX = abs((ax - ax_previous) / float(ax_previous)) * 100.0;
+  float deltaY = abs((ay - ay_previous) / float(ay_previous)) * 100.0;
+  float deltaZ = abs((az - az_previous) / float(az_previous)) * 100.0;
+
+  // Imprimir as acelerações para monitoramento
+  Serial.print("Aceleração X: ");
+  Serial.print(ax);
+  Serial.print(" Y: ");
+  Serial.print(ay);
+  Serial.print(" Z: ");
+  Serial.println(az);
+
+  // Verificar se a variação é maior que 30% em qualquer eixo
+  if (deltaX > 30 || deltaY > 30 || deltaZ > 30) {
+    // Piscar LED vermelho 3 vezes
+    for (int i = 0; i < 3; i++) {
+      digitalWrite(ledPin, HIGH);  // Acender LED
+      delay(500);                   // Esperar 500ms
+      digitalWrite(ledPin, LOW);   // Apagar LED
+      delay(500);                   // Esperar 500ms
+    }
+  }
+
+  // Atualizar os valores anteriores de aceleração
+  ax_previous = ax;
+  ay_previous = ay;
+  az_previous = az;
+
+  // Esperar um pouco antes da próxima leitura
+  delay(100);
+}
