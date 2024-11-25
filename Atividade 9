@@ -1,0 +1,99 @@
+///
+Crie um controlador de acesso a uma sala da UNIFEI. 
+Para isso ele deve conter:
+- Um teclado numérico para inserir a senha de 6 números;
+- Um display que deverá mostrar o nome do usuário dono da senha;
+- Um buzzer para um som agudo no acerto e grave para erro da senha;
+- Um servo para abrir a porta quando a senha estiver correta;
+///
+
+
+
+#include <Keypad.h>
+#include <LiquidCrystal.h>
+#include <ESP32Servo.h>  // Incluindo a biblioteca ESP32Servo
+
+// Configurações do LCD (defina os pinos que você utilizará)
+const int rs = 14, en = 27, d4 = 26, d5 = 25, d6 = 33, d7 = 32;
+LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
+
+// Configuração do teclado matricial
+const byte ROWS = 4;  // Número de linhas
+const byte COLS = 4;  // Número de colunas
+char keys[ROWS][COLS] = {
+  {'1', '2', '3', 'A'},
+  {'4', '5', '6', 'B'},
+  {'7', '8', '9', 'C'},
+  {'*', '0', '#', 'D'}
+};
+byte rowPins[ROWS] = {23, 22, 21, 19};    // Pinos das linhas (defina seus pinos)
+byte colPins[COLS] = {18, 5, 17, 16};    // Pinos das colunas (defina seus pinos)
+Keypad keypad = Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS);
+
+// Configuração do servo motor
+Servo servo;  // Instancia o objeto Servo
+const int servoPin = 15;  // Defina o pino do servo
+
+// Configuração do buzzer
+const int buzzerPin = 12;  // Defina o pino do buzzer
+
+// Configuração da senha
+const String senhaCorreta = "123456";  // Senha predefinida
+String senhaDigitada = "";
+
+void setup() {
+  // Inicializa os componentes
+  lcd.begin(16, 2);
+  lcd.print("Acesso UNIFEI");
+  delay(2000);
+  lcd.clear();
+
+  servo.attach(servoPin);  // Anexa o servo ao pino
+  servo.write(0);  // Porta fechada
+
+  pinMode(buzzerPin, OUTPUT);
+}
+
+void loop() {
+  char tecla = keypad.getKey();
+
+  if (tecla) {  // Se uma tecla for pressionada
+    if (tecla == '#') {  // Confirma a senha
+      verificarSenha();
+    } else if (tecla == '*') {  // Limpa a senha
+      senhaDigitada = "";
+      lcd.clear();
+      lcd.print("Senha resetada");
+      delay(1000);
+      lcd.clear();
+    } else {  // Adiciona o número digitado
+      senhaDigitada += tecla;
+      lcd.clear();
+      lcd.print("Senha: ");
+      for (int i = 0; i < senhaDigitada.length(); i++) {
+        lcd.print('*');  // Exibe asteriscos para a senha
+      }
+    }
+  }
+}
+
+void verificarSenha() {
+  lcd.clear();
+  if (senhaDigitada == senhaCorreta) {
+    lcd.print("Acesso Liberado");
+    tone(buzzerPin, 1000, 500);  // Som agudo
+    abrirPorta();
+  } else {
+    lcd.print("Acesso Negado");
+    tone(buzzerPin, 500, 500);   // Som grave
+  }
+  senhaDigitada = "";  // Reseta a senha após verificação
+  delay(2000);
+  lcd.clear();
+}
+
+void abrirPorta() {
+  servo.write(90);  // Abre a porta (aproximadamente 90 graus)
+  delay(5000);      // Mantém a porta aberta por 5 segundos
+  servo.write(0);   // Fecha a porta (aproximadamente 0 graus)
+}
