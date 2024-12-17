@@ -1,0 +1,144 @@
+///
+Crie um relógio, ajustável usando um RTC.
+Para isso é necessário:
+- Um display LCD com I2C para mostrar ano, mês, dia, hora, minuto e segundo
+- Formatar a essas informações como:
+  '''2024-11-26
+     7:55:00 '''
+- Usar dois botões para ajustar o horário.
+- Botão vermelho muda a variável: ano, mês, dia, hora, minuto ou segundo
+- Botão azul incrementa a variável: 
+  ano de 2024 a 2030
+  mês de 1 a 12
+  dia de 1 a 31
+  hora de 0 a 23
+  minuto de 0 a 59
+  segundo (não é ajustável)
+///
+
+
+
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+#include <RTClib.h>
+
+// Definindo o display LCD (endereço I2C)
+LiquidCrystal_I2C lcd(0x27, 20, 4);  // LCD 20x4
+
+// Inicializando o RTC (DS1307)
+RTC_DS1307 rtc;
+
+// Pinos para os botões
+const int buttonRedPin = 15;  // Botão vermelho para mudar a variável
+const int buttonBluePin = 18; // Botão azul para incrementar a variável
+
+// Variáveis para o relógio
+int year = 2024;
+int month = 11;
+int day = 26;
+int hour = 7;
+int minute = 55;
+int second = 0;
+
+// Variável para controlar qual campo será alterado (0 a 4)
+int selectedVariable = 0;  // 0: Ano, 1: Mês, 2: Dia, 3: Hora, 4: Minuto
+
+// Variáveis de debounce
+unsigned long lastButtonPressRed = 0;
+unsigned long lastButtonPressBlue = 0;
+unsigned long debounceDelay = 200;  // Tempo de debounce em milissegundos
+
+void setup() {
+  // Inicia comunicação com o display LCD
+  lcd.begin(20, 4);
+  lcd.backlight();
+
+  // Inicia o RTC
+  if (!rtc.begin()) {
+    lcd.print("Erro no RTC");
+    while (1);  // Loop infinito se o RTC não for encontrado
+  }
+
+  // Inicializa os pinos dos botões
+  pinMode(buttonRedPin, INPUT_PULLUP);
+  pinMode(buttonBluePin, INPUT_PULLUP);
+
+  // Definindo o RTC para começar com valores ajustados
+  rtc.adjust(DateTime(year, month, day, hour, minute, second));
+
+  // Inicializa a comunicação serial para depuração
+  Serial.begin(9600);
+}
+
+void loop() {
+  // Exibe a data e hora formatada no display
+  DateTime now = rtc.now();
+
+  // Exibe a data e hora no monitor serial para depuração
+  Serial.print("Ano: ");
+  Serial.print(now.year());
+  Serial.print(" Mês: ");
+  Serial.print(now.month());
+  Serial.print(" Dia: ");
+  Serial.print(now.day());
+  Serial.print(" Hora: ");
+  Serial.print(now.hour());
+  Serial.print(" Minuto: ");
+  Serial.print(now.minute());
+  Serial.print(" Segundo: ");
+  Serial.println(now.second());
+
+  // Configura a posição do cursor e imprime a data
+  lcd.setCursor(0, 0);
+  lcd.print(now.year(), DEC);
+  lcd.print("-");
+  lcd.print(now.month(), DEC);
+  lcd.print("-");
+  lcd.print(now.day(), DEC);
+
+  // Imprime a hora
+  lcd.setCursor(0, 1);
+  lcd.print(now.hour(), DEC);
+  lcd.print(":");
+  lcd.print(now.minute(), DEC);
+  lcd.print(":");
+  lcd.print(now.second(), DEC);  // Segundo não ajustável
+
+  // Verifica se o botão vermelho foi pressionado para mudar a variável
+  if (digitalRead(buttonRedPin) == LOW && (millis() - lastButtonPressRed) > debounceDelay) {
+    lastButtonPressRed = millis();  // Atualiza o tempo do último pressionamento
+    selectedVariable = (selectedVariable + 1) % 5;  // Muda a variável entre 0 e 4
+    Serial.print("Variável selecionada: ");
+    Serial.println(selectedVariable);  // Depuração para ver a variável selecionada
+  }
+
+  // Verifica se o botão azul foi pressionado para incrementar a variável
+  if (digitalRead(buttonBluePin) == LOW && (millis() - lastButtonPressBlue) > debounceDelay) {
+    lastButtonPressBlue = millis();  // Atualiza o tempo do último pressionamento
+
+    switch (selectedVariable) {
+      case 0:  // Ano: de 2024 a 2030
+        year = (year < 2030) ? year + 1 : 2024;
+        rtc.adjust(DateTime(year, month, day, hour, minute, second));
+        break;
+      case 1:  // Mês: de 1 a 12
+        month = (month < 12) ? month + 1 : 1;
+        rtc.adjust(DateTime(year, month, day, hour, minute, second));
+        break;
+      case 2:  // Dia: de 1 a 31
+        day = (day < 31) ? day + 1 : 1;
+        rtc.adjust(DateTime(year, month, day, hour, minute, second));
+        break;
+      case 3:  // Hora: de 0 a 23
+        hour = (hour < 23) ? hour + 1 : 0;
+        rtc.adjust(DateTime(year, month, day, hour, minute, second));
+        break;
+      case 4:  // Minuto: de 0 a 59
+        minute = (minute < 59) ? minute + 1 : 0;
+        rtc.adjust(DateTime(year, month, day, hour, minute, second));
+        break;
+    }
+  }
+
+  delay(100);  // Delay de 100 ms para garantir que o loop continue fluindo
+}
