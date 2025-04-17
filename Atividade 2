@@ -8,26 +8,29 @@ o nível do brilho do LED deve variar em 255 níveis
 
 
 void setup() {
-  pinMode(21, OUTPUT);
-  Serial.begin(115200);
+  pinMode(21, OUTPUT);  // Define o pino 21 como saída para controlar o LED
+  Serial.begin(115200);  // Inicializa a comunicação serial para monitorar o valor de brilho
 }
 
 void loop() {
-  static int valor = 0;
-  static int incremento = 1;
+  static int valor = 0;         // Variável que controla o brilho do LED (de 0 a 255)
+  static int incremento = 1;    // Variável que controla a direção do aumento ou diminuição do brilho
 
-  analogWrite(21, valor);
+  analogWrite(21, valor);  // Escreve o valor de luminosidade no pino 21, controlando o brilho do LED
 
-  if (incremento == 1 && valor > 255){
-    incremento = -1;
-  }
-  if (incremento == -1 && valor < 1){
-    incremento = 1;
+  // Se o valor ultrapassar 255, inverte a direção do incremento (para diminuir o brilho)
+  if (incremento == 1 && valor >= 255) {
+    incremento = -1;  // Muda a direção para diminuir o brilho
   }
 
-  valor += incremento;
+  // Se o valor for menor que 1, inverte a direção do incremento (para aumentar o brilho)
+  if (incremento == -1 && valor <= 0) {
+    incremento = 1;  // Muda a direção para aumentar o brilho
+  }
 
-  Serial.println(valor);
+  valor += incremento;  // Atualiza o valor de brilho, aumentando ou diminuindo dependendo do incremento
 
-  delay(10);
+  Serial.println(valor);  // Exibe o valor de brilho no monitor serial (para depuração)
+
+  delay(10);  // Atraso de 10 ms para controlar a velocidade da mudança de brilho
 }
