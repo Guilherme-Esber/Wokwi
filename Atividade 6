@@ -25,20 +25,20 @@ LiquidCrystal_I2C lcd(0x27, 16, 2);
 
 void setup() {
   // Inicializar a comunicação serial
-  Serial.begin(115200);
+  Serial.begin(115200);  // Inicializa a comunicação serial com o computador
   Serial.println("Iniciando o sensor DHT22 e LCD...");
 
   // Inicializar o sensor DHT
   dht.begin();
 
   // Inicializar o LCD com o número de colunas e linhas
-  lcd.begin(16, 2);  // 16 colunas, 2 linhas
+  lcd.begin(16, 2);  // LCD de 16 colunas e 2 linhas
   lcd.setBacklight(1);  // Ligar o retroiluminado do LCD
 }
 
 void loop() {
   // Espera entre as leituras do sensor DHT
-  delay(2000);  // O DHT22 tem um tempo de resposta de 2 segundos
+  delay(2000);  // O DHT22 tem um tempo de resposta de 2 segundos entre as leituras
 
   // Leitura da temperatura e umidade
   float temp = dht.readTemperature();  // Temperatura em Celsius
@@ -49,15 +49,15 @@ void loop() {
     Serial.println("Falha ao ler o sensor DHT!");
     lcd.clear();
     lcd.setCursor(0, 0);
-    lcd.print("Erro de leitura");
-    return;
+    lcd.print("Erro de leitura");  // Exibe erro no LCD
+    return;  // Se a leitura falhou, sai da função e reinicia o loop
   }
 
   // Exibir valores no Serial Monitor
   Serial.print("Temp: ");
-  Serial.print(temp, 1);  // Mostra 1 casa decimal
+  Serial.print(temp, 1);  // Mostra a temperatura com 1 casa decimal
   Serial.print("\nUmid: ");
-  Serial.print(humidity, 1);  // Mostra 1 casa decimal
+  Serial.print(humidity, 1);  // Mostra a umidade com 1 casa decimal
   Serial.print("\n");
 
   // Exibir no LCD
