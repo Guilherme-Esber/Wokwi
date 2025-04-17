@@ -8,46 +8,49 @@ em 4 faixas: azul (menor), verde, amarelo, vermelho (máximo).
 
 
 void setup() {
-  pinMode(35,INPUT);
-  pinMode(23,OUTPUT);
-  pinMode(22,OUTPUT);
-  pinMode(21,OUTPUT);
-  pinMode(19,OUTPUT);
+  // Definindo os pinos dos LEDs como saída e o pino do potenciômetro como entrada
+  pinMode(35, INPUT);   // Pino 35 (entrada analógica para o potenciômetro)
+  pinMode(23, OUTPUT);  // LED azul
+  pinMode(22, OUTPUT);  // LED verde
+  pinMode(21, OUTPUT);  // LED amarelo
+  pinMode(19, OUTPUT);  // LED vermelho
 
+  // Inicializa a comunicação serial para monitoramento
   Serial.begin(115200);
 }
 
-int ledazul = 23;
-int ledverde = 22;
-int ledamarelo = 21;
-int ledvermelho = 19;
-int conana = 35;
+int ledazul = 23;   // Pino do LED azul
+int ledverde = 22;  // Pino do LED verde
+int ledamarelo = 21; // Pino do LED amarelo
+int ledvermelho = 19; // Pino do LED vermelho
+int conana = 35;    // Pino de entrada analógica para o potenciômetro
 
 void loop() {
+  // Lê o valor do potenciômetro, que varia de 0 a 4095 (12 bits)
   int cavalor = analogRead(conana);
 
+  // Desliga todos os LEDs inicialmente
   digitalWrite(ledazul, LOW);
   digitalWrite(ledverde, LOW);
   digitalWrite(ledamarelo, LOW);
   digitalWrite(ledvermelho, LOW);
 
-  if (cavalor < 1024)
-  {
+  // Divide o valor do potenciômetro em 4 faixas e acende o LED correspondente
+  if (cavalor < 1024) {  // Faixa 0-1023 (0-25% da escala total): LED azul
     digitalWrite(ledazul, HIGH);
   }
-  else if (cavalor < 2048)
-  {
+  else if (cavalor < 2048) {  // Faixa 1024-2047 (25-50%): LED verde
     digitalWrite(ledverde, HIGH);
   }
-  else if (cavalor < 3072)
-  {
+  else if (cavalor < 3072) {  // Faixa 2048-3071 (50-75%): LED amarelo
     digitalWrite(ledamarelo, HIGH);
   }
-  else 
-  {
+  else {  // Faixa 3072-4095 (75-100%): LED vermelho
     digitalWrite(ledvermelho, HIGH);
   }
 
+  // Exibe o valor do potenciômetro no monitor serial
   Serial.println(cavalor);
-  delay(10); // this speeds up the simulation
+
+  delay(10);  // Atraso de 10 ms para permitir tempo de leitura do potenciômetro
 }
