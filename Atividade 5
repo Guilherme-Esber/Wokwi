@@ -11,37 +11,36 @@ na porta UART (Serial) a cada 1 segundo.
 
 void setup() {
   // Inicializando a comunicação serial com o computador
-  Serial.begin(115200);
-  Serial.println("Iniciando o medidor ultrasônico...");
+  Serial.begin(115200);  // Taxa de comunicação de 115200 bauds
+  Serial.println("Iniciando o medidor ultrasônico...");  // Mensagem inicial para indicar que o sensor está pronto
 
   // Inicializando os pinos do HC-SR04
-  pinMode(TRIG_PIN, OUTPUT);
-  pinMode(ECHO_PIN, INPUT);
+  pinMode(TRIG_PIN, OUTPUT);  // Pino TRIG como saída
+  pinMode(ECHO_PIN, INPUT);   // Pino ECHO como entrada
 }
 
 void loop() {
-  // Medir a distância
   long duration, distance;
   
   // Enviar um pulso de 10 microssegundos no TRIG para iniciar a medição
-  digitalWrite(TRIG_PIN, LOW);
-  delayMicroseconds(2); // Atraso para garantir estabilidade no sinal
-  digitalWrite(TRIG_PIN, HIGH);
-  delayMicroseconds(10); // Pulso de 10ms
-  digitalWrite(TRIG_PIN, LOW);
-  
+  digitalWrite(TRIG_PIN, LOW);  // Garante que o TRIG está em LOW antes de enviar o pulso
+  delayMicroseconds(2);         // Atraso de 2 microssegundos para garantir estabilidade
+  digitalWrite(TRIG_PIN, HIGH); // Envia o pulso HIGH para iniciar a medição
+  delayMicroseconds(10);        // Pulso de 10 microssegundos
+  digitalWrite(TRIG_PIN, LOW);  // Finaliza o pulso
+
   // Medir o tempo de resposta do ECHO
-  duration = pulseIn(ECHO_PIN, HIGH);
-  
+  duration = pulseIn(ECHO_PIN, HIGH);  // Mede o tempo que o pino ECHO ficou HIGH
+
   // Calcular a distância com a fórmula: distância = (tempo * velocidade do som) / 2
   // Velocidade do som é cerca de 343m/s ou 0.0343 cm/µs
-  distance = duration * 0.0343 / 2;
+  distance = duration * 0.0343 / 2;  // Dividido por 2 porque o som percorre o caminho de ida e volta
 
   // Enviar a distância medida pela porta serial
   Serial.print("Distância: ");
-  Serial.print(distance);
+  Serial.print(distance);  // Exibe a distância em centímetros
   Serial.println(" cm");
 
   // Aguardar 1 segundo antes de realizar outra medição
-  delay(1000);
+  delay(1000);  // Delay de 1 segundo (1000 ms) para a próxima medição
 }
