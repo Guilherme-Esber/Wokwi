@@ -5,32 +5,41 @@ a 45 graus e pressionando o botão verde se posicione a 90 graus.
 
 
 
-#include <ESP32Servo.h>
+#include <ESP32Servo.h>  // Biblioteca para controle do servo motor no ESP32
 
-Servo myservo;
+Servo myservo;  // Cria o objeto para controlar o servo motor
 
 void setup() {
-  pinMode(34, INPUT);
-  pinMode(35, INPUT);
+  pinMode(34, INPUT);  // Configura o pino 34 como entrada para o botão vermelho
+  pinMode(35, INPUT);  // Configura o pino 35 como entrada para o botão verde
   
+  // Aloca timers para o controle do PWM (se necessário para outros servos)
   ESP32PWM::allocateTimer(0);
   ESP32PWM::allocateTimer(1);
   ESP32PWM::allocateTimer(2);
   ESP32PWM::allocateTimer(3);
+
+  // Configura o servo para um ciclo de PWM de 50 Hz
   myservo.setPeriodHertz(50);    
+
+  // Anexa o servo ao pino 18, com a largura de pulso entre 1000 e 2000 microssegundos (para controlar o movimento do servo)
   myservo.attach(18, 1000, 2000);
+
+  // Inicializa a posição do servo em 0 graus
   myservo.write(0);
 }
 
 void loop() {
+  // Verifica se o botão vermelho (pino 34) foi pressionado (LOW indica pressionado, pois estamos usando INPUT padrão com pull-up interno)
+  if (!digitalRead(34)) {
+    myservo.write(45);  // Move o servo para 45 graus
+  }
 
-  if (!digitalRead(34))
-  {
-    myservo.write(45);
+  // Verifica se o botão verde (pino 35) foi pressionado
+  if (!digitalRead(35)) {
+    myservo.write(90);  // Move o servo para 90 graus
   }
-  if (!digitalRead(35))
-  {
-    myservo.write(90);
-  }
-  delay(10); // this speeds up the simulation
+
+  // Pequeno atraso para estabilizar a leitura dos botões e evitar leituras rápidas demais
+  delay(10);  // Delay de 10 ms
 }
